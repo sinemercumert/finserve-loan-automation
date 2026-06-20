@@ -1,0 +1,268 @@
+{
+  "name": "sinem_ercumert_task",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead_path",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -384,
+        16
+      ],
+      "id": "f76b05b4-4cf0-4966-b3c0-ad3b95579983",
+      "name": "Webhook",
+      "webhookId": "13dcb4b9-7aa5-4f38-b1e0-9b395d24d239"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "= Extract the following information from the text: company_name, requested_loan_amount, annual_revenue. Return ONLY a valid JSON object. Do not include any markdown formatting, backticks, or extra text.\nText: {{$json.body.mesaj}}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        -128,
+        16
+      ],
+      "id": "ac8bf9cb-6593-4d89-bf9d-95cffee4de97",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        272
+      ],
+      "id": "605cfc38-6c1d-4594-9c20-4396e6135fee",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "lajYqIB630wHHqV5",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webhook.site/af872976-7d44-4716-a953-74c40781a894",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.parse($json.text) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        480,
+        128
+      ],
+      "id": "b7269fe3-596e-422e-8c65-9a97eccb5bc8",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e9e36d78-ba78-4135-94fd-7472e269707f",
+              "leftValue": "={{ JSON.parse($json.text).requested_loan_amount }}",
+              "rightValue": 1000000,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        224,
+        16
+      ],
+      "id": "82df6b9d-99a2-4c7f-9f09-ee2d0deba49f",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://webhook.site/af872976-7d44-4716-a953-74c40781a894?priority=VIP",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.parse($json.text) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        480,
+        -96
+      ],
+      "id": "0e8a77c9-57e2-4ed6-a2cb-4a70639ccb19",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "operation": "generateAndEmail",
+        "document": "dnTMrcuQfbJnxEGEVqTy",
+        "dataJson": "={\n  \"company_name\": \"{{ JSON.parse($node[\"Basic LLM Chain\"].json[\"text\"]).company_name }}\",\n  \"industry_sector\": \"{{ JSON.parse($node[\"Basic LLM Chain\"].json[\"text\"]).industry_sector || 'General Business' }}\",\n  \"requested_loan_amount\": \"{{ JSON.parse($node[\"Basic LLM Chain\"].json[\"text\"]).requested_loan_amount }}\",\n  \"annual_revenue\": \"{{ JSON.parse($node[\"Basic LLM Chain\"].json[\"text\"]).annual_revenue }}\",\n  \"lead_status\": \"Standard Queue\",\n  \"current_date\": \"{{ $now.format('yyyy-MM-dd') }}\"\n}",
+        "email": "sinemercu@gmail.com",
+        "emailSubject": "Urgent: New Standart Loan Application - {{ JSON.parse($node[\"Basic LLM Chain\"].json[\"text\"]).company_name }}",
+        "emailMessage": "Hello Sales Team, a new standard lead has been qualified. The attached memo is ready for your follow-up."
+      },
+      "type": "n8n-nodes-documentero.documentero",
+      "typeVersion": 1,
+      "position": [
+        688,
+        128
+      ],
+      "id": "8af4139f-81a0-479a-8839-8601bbbf9276",
+      "name": "DocumenteroStandart",
+      "credentials": {
+        "documenteroApi": {
+          "id": "J4jINrUo9kcEf3A6",
+          "name": "Documentero account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "generateAndEmail",
+        "document": "I1RpiErR2fYT6SDM4fgK",
+        "dataJson": "={\n  \"company_name\": \"{{ JSON.parse($node[\"Basic LLM Chain\"].json[\"text\"]).company_name }}\",\n  \"industry_sector\": \"{{ JSON.parse($node[\"Basic LLM Chain\"].json[\"text\"]).industry_sector || 'Not Provided' }}\",\n  \"requested_loan_amount\": \"{{ JSON.parse($node[\"Basic LLM Chain\"].json[\"text\"]).requested_loan_amount }}\",\n  \"annual_revenue\": \"{{ JSON.parse($node[\"Basic LLM Chain\"].json[\"text\"]).annual_revenue }}\",\n  \"current_date\": \"{{ $now.format('yyyy-MM-dd') }}\"\n}",
+        "email": "sinemercu@gmail.com",
+        "emailSubject": "Urgent: New VIP Loan Application - {{ JSON.parse($node[\"Basic LLM Chain\"].json[\"text\"]).company_name }}",
+        "emailMessage": "Hello Team, a new high-value loan application has been received and qualified by the AI system. Please find the attached Preliminary Credit Memo for review."
+      },
+      "type": "n8n-nodes-documentero.documentero",
+      "typeVersion": 1,
+      "position": [
+        688,
+        -96
+      ],
+      "id": "f5853a4b-9bfa-4cac-9524-e5663970be85",
+      "name": "DocumenteroVIP",
+      "credentials": {
+        "documenteroApi": {
+          "id": "J4jINrUo9kcEf3A6",
+          "name": "Documentero account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "DocumenteroVIP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "DocumenteroStandart",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "863208a9-d5c4-4cc7-b4e6-68ed458ce32a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ffd481d8cb4dd414c948f4ae2e6197a43a53f995a395dba1a4db0930fc406b13"
+  },
+  "id": "otgYXPclQskha7JV",
+  "tags": [
+    {
+      "updatedAt": "2026-03-22T08:44:22.730Z",
+      "createdAt": "2026-03-22T08:44:22.730Z",
+      "id": "joReaSSULAXT9z1r",
+      "name": "sinem_ercumert_task"
+    }
+  ]
+}
