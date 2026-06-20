@@ -35,6 +35,10 @@ I chose n8n over alternatives because its visual, node-based structure made it f
 
 `workflow.json` (n8n export) is included in this repo and can be imported directly into any n8n instance.
 
+![n8n Workflow](images/workflow_diagram.png)
+
+`workflow.json` (n8n export) is included in this repo and can be imported directly into any n8n instance.
+
 ## Future Extensions
 
 - Slack/Teams integration for real-time alerts on VIP leads
@@ -42,6 +46,5 @@ I chose n8n over alternatives because its visual, node-based structure made it f
 - PostgreSQL/Snowflake sink for centralized BI reporting
 - A parallel RAG-based support copilot using LangChain + a vector database
 
----
 
 *This project was built as part of a take-home assessment for a financial AI automation role.*
