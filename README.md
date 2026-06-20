@@ -35,7 +35,7 @@ I chose n8n over alternatives because its visual, node-based structure made it f
 
 `workflow.json` (n8n export) is included in this repo and can be imported directly into any n8n instance.
 
-![n8n Workflow](images/workflow_diagram.png)
+![n8n Workflow](workflow_diagram.png)
 
 `workflow.json` (n8n export) is included in this repo and can be imported directly into any n8n instance.
 
